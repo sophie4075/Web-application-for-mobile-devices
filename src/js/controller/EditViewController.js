@@ -196,17 +196,21 @@ export default class EditViewController extends mwf.ViewController {
     }
 
     checkURLContentType(url) {
+        //Die Funktion gibt ein Promise zurück, das entweder aufgelöst (resolve) oder abgelehnt (reject) wird.
         return new Promise((resolve, reject) => {
             const xhr = new XMLHttpRequest();
             xhr.open('HEAD', url, true);
             xhr.onload = () => {
+                //Wenn der HTTP-Statuscode 200 (OK) ist, wird der Content-Type aus den Headern extrahiert und das Promise wird mit diesem Wert aufgelöst.
                 if (xhr.status === 200) {
                     const contentType = xhr.getResponseHeader('Content-Type');
                     resolve(contentType);
                 } else {
+                    // Wenn der Statuscode nicht 200 ist, wird die Methode tryGetRequest aufgerufen, die eine GET-Anfrage sendet.
                     this.tryGetRequest(url, resolve, reject);
                 }
             };
+            //Wird ausgeführt, wenn ein Fehler während der Anfrage auftritt. In diesem Fall wird ebenfalls die Methode tryGetRequest aufgerufen.
             xhr.onerror = () => {
                 this.tryGetRequest(url, resolve, reject);
             };
@@ -217,15 +221,19 @@ export default class EditViewController extends mwf.ViewController {
     tryGetRequest(url, resolve, reject) {
         const xhr = new XMLHttpRequest();
         xhr.open('GET', url, true);
+        //response wird als blob behandelt
         xhr.responseType = 'blob';
         xhr.onload = () => {
             if (xhr.status === 200) {
+                //Wenn OK wird der Content-Type-Header der Antwort extrahiert und das Promise wird mit diesem Wert aufgelöst.
                 const contentType = xhr.getResponseHeader('Content-Type');
                 resolve(contentType);
             } else {
+                //Promise mit der Fehlermeldung "Die URL ist nicht erreichbar." abgelehnt.
                 reject('Die URL ist nicht erreichbar.');
             }
         };
+        //Wenn ein Fehler während der Anfrage auftritt, wird das Promise mit der Fehlermeldung "Fehler beim Abrufen der URL." abgelehnt.
         xhr.onerror = () => {
             reject('Fehler beim Abrufen der URL.');
         };
